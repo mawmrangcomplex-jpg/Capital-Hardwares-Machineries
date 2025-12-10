@@ -332,7 +332,9 @@
     </form>
   </section>
 
-  </main>
+  <!-- ADMIN -->
+  
+</main>
 
 <footer class="container" style="margin-top:18px">
   <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
@@ -392,6 +394,7 @@ const STORAGE_KEY = 'cap_products';
 /* JSONBIN CONFIG */
 const JSONBIN_BIN_ID = "69390c1bd0ea881f401ec9e3";
 const JSONBIN_READ_KEY = "$2a$10$hE6kjo8yiOLXrXpyJTnbge7Smbigtc9/viX6ledsLb3vRaiD1WPt.";
+const JSONBIN_MASTER_KEY = "$2a$10$0nyukBzAaSqrLEnIh.Yj9Oj9ScBI0pA9DO8icYXowz7prQhNAXiGW";
 
 let PRODUCTS_MAP = {};
 let filteredList = [];
@@ -399,23 +402,9 @@ let currentPage = 1;
 const perPage = 24;
 
 /* Load products */
-
-async function loadProductsFromLocal(){
-  try{
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-      headers:{ "X-Master-Key": JSONBIN_READ_KEY }
-    });
-    const json = await res.json();
-    PRODUCTS_MAP = json.record || {};
-  } catch(e){
-    try {
-      PRODUCTS_MAP = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {};
-    } catch(err){
-      PRODUCTS_MAP = {};
-    }
-  }
+function loadProductsFromLocal(){
+  try{ PRODUCTS_MAP = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {}; }catch(e){ PRODUCTS_MAP = {}; }
 }
-
 function getProductsArray(){ return Object.values(PRODUCTS_MAP).sort((a,b)=>(a.created||0)-(b.created||0)); }
 
 function loadAndRenderProducts(){
