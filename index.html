@@ -6,6 +6,8 @@
 <title>CAPITAL HARDWARES &amp; MACHINERIES — Single File</title>
 <meta name="description" content="Single-file site with admin (PIN), products, contact.">
 <style>
+ a[data-route=\"admin\"] { display: none !important; }
+
   :root{
     --bg:#080808; --card:#0f0f10; --text:#f5ecd8; --muted:#bfbfbf;
     --gold:#b98b27; --silver:#c6c6c6; --card-shadow:0 8px 30px rgba(0,0,0,0.6);
@@ -188,8 +190,8 @@
 </style>
 
 <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
 <script>
 const firebaseConfig = {
