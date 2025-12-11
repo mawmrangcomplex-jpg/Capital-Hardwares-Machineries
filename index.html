@@ -3,18 +3,23 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CAPITAL HARDWARES &amp; MACHINERIES — Public Catalog</title>
-<meta name="description" content="Public product catalog (loads from JSONBin, read-only).">
+<title>CAPITAL HARDWARES &amp; MACHINERIES — Single File</title>
+<meta name="description" content="Single-file site with admin (PIN), products, contact.">
 <style>
-  :root{ --bg:#080808; --card:#0f0f10; --text:#f5ecd8; --muted:#bfbfbf; --gold:#b98b27; --silver:#c6c6c6; }
+  :root{
+    --bg:#080808; --card:#0f0f10; --text:#f5ecd8; --muted:#bfbfbf;
+    --gold:#b98b27; --silver:#c6c6c6; --card-shadow:0 8px 30px rgba(0,0,0,0.6);
+  }
   *{box-sizing:border-box}
   body{margin:0;font-family:Inter,Roboto,system-ui;color:var(--text);background:var(--bg)}
-  .container{max-width:1100px;margin:0 auto;padding:16px}
   header{background:linear-gradient(90deg,var(--gold),var(--silver));color:#000;padding:18px 16px}
+  .container{max-width:1100px;margin:0 auto;padding:16px}
   nav{display:flex;gap:12px;justify-content:flex-end}
   nav a{color:#000;text-decoration:none;padding:8px 10px;border-radius:8px;font-weight:700}
   nav a.active{background:rgba(0,0,0,0.06)}
-  .card{background:linear-gradient(180deg,var(--card),rgba(255,255,255,0.01));border-radius:12px;padding:20px;margin-top:18px}
+  .card{background:linear-gradient(180deg,var(--card),rgba(255,255,255,0.01));border-radius:12px;padding:20px;box-shadow:var(--card-shadow);margin-top:18px}
+  .hero{display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start}
+  @media(max-width:900px){.hero{grid-template-columns:1fr}}
   .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:18px}
   .product{padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(0,0,0,0.06));cursor:pointer;border:1px solid rgba(255,255,255,0.02)}
   .product img{width:100%;height:140px;object-fit:cover;border-radius:8px}
@@ -24,38 +29,293 @@
   .btn.secondary{background:transparent;color:var(--silver);border:1px solid rgba(255,255,255,0.06)}
   .modal{position:fixed;inset:0;background:linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.75));display:none;align-items:center;justify-content:center;padding:20px}
   .modal.open{display:flex}
+  .modal .box{background:var(--card);max-width:900px;width:100%;border-radius:12px;display:grid;grid-template-columns:1fr 360px;gap:18px;padding:18px}
   .detail-img{width:100%;height:320px;object-fit:cover;border-radius:8px}
+  /* Admin PIN UI */
+  .pin-wrap{display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;min-height:220px}
+  .pin-dots{display:flex;gap:8px}
+  .dot{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.06);box-shadow:inset 0 -2px 0 rgba(0,0,0,0.3)}
+  .dot.filled{background:var(--gold)}
+  .pad{display:grid;grid-template-columns:repeat(3,64px);gap:12px;justify-content:center}
+  .pad button{width:64px;height:64px;border-radius:8px;border:none;background:rgba(255,255,255,0.04);color:var(--text);font-weight:700;font-size:18px;cursor:pointer}
+  .pad .zero{grid-column:2}
+  .pin-actions{display:flex;gap:8px;margin-top:8px}
+  .shake{animation:shake .4s}
+  @keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}100%{transform:translateX(0)}}
+  .hidden{display:none}
+  .admin-grid{display:grid;grid-template-columns:1fr 380px;gap:12px}
+  @media(max-width:900px){.admin-grid{grid-template-columns:1fr}}
+
+/* Glass & Glow Premium Style */
+.glass {
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.04) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  box-shadow: 0 0 25px rgba(255,215,128,0.18), 0 12px 40px rgba(0,0,0,0.6) !important;
+}
+
+
+/* Safe premium enhancements (hover-only float, glow, light glass, hero underline) */
+.hover-float{transition:transform .36s cubic-bezier(.2,.9,.2,1); will-change:transform;}
+.glow-hover{transition:box-shadow .28s ease, transform .28s ease;}
+.glow-hover:hover{transform:translateY(-8px); box-shadow:0 0 28px rgba(255,200,80,0.14), 0 18px 40px rgba(0,0,0,0.6) !important;}
+.light-glass{backdrop-filter: blur(6px); background: rgba(255,255,255,0.03) !important; border:1px solid rgba(255,255,255,0.04) !important;}
+/* Hero title underline (pseudo element) */
+#view-home h1{position:relative; display:inline-block;}
+#view-home h1::after{content:''; position:absolute; left:0; bottom:-10px; width:160px; height:3px; background:linear-gradient(90deg,var(--gold),transparent); border-radius:2px; box-shadow:0 6px 20px rgba(255,200,80,0.08); opacity:0.98;}
+/* subtle focus for inputs in home cards */
+#view-home input:focus, #view-home textarea:focus { outline: 2px solid rgba(185,139,39,0.12); box-shadow:0 6px 18px rgba(185,139,39,0.03); }
+
+
+/* --- Premium Gold Heading (Style 1) --- */
+.h-premium {
+  font-weight:900 !important;
+  letter-spacing:1px !important;
+  text-transform:uppercase !important;
+  color:var(--gold) !important;
+  position:relative;
+}
+.h-premium::after {
+  content:'';
+  position:absolute;
+  left:0;
+  bottom:-8px;
+  width:140px;
+  height:3px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+  border-radius:2px;
+  opacity:0.9;
+}
+
+/* --- Industrial Heading (Style 4) --- */
+.h-industrial {
+  font-weight:800 !important;
+  letter-spacing:0.5px !important;
+  text-transform:uppercase !important;
+  color:var(--text) !important;
+}
+
+
+/* --- SATIN GOLD + INDUSTRIAL PREMIUM HEADING STYLE (STYLE 2) --- */
+.premium-head {
+  font-weight:900 !important;
+  text-transform:uppercase !important;
+  letter-spacing:1.2px !important;
+  color:var(--text) !important;
+  background:linear-gradient(90deg,#bfa76a,#e0c98a,#bfa76a);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:0 0 18px rgba(255,215,128,0.22), 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.premium-sub {
+  font-weight:800 !important;
+  text-transform:uppercase !important;
+  letter-spacing:0.8px !important;
+  color:var(--text) !important;
+  opacity:0.92;
+}
+
+
+/* --- PREMIUM PRODUCT CARD P2 --- */
+.product.card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,210,125,0.15);
+  border-radius: 14px !important;
+  padding: 14px !important;
+  backdrop-filter: blur(8px);
+  transition: all .32s ease;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.55);
+}
+.product.card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.7), 0 0 22px rgba(255,210,125,0.25);
+  border-color: rgba(255,210,125,0.55);
+}
+.product.card img {
+  height: 160px !important;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  transition: .35s ease;
+}
+.product.card:hover img {
+  transform: scale(1.07);
+  filter: brightness(1.1);
+}
+
+/* --- GLASS LUXURY MODAL --- */
+.modal {
+  backdrop-filter: blur(6px);
+}
+.modal.open {
+  animation: fadeBackdrop .35s ease forwards;
+}
+@keyframes fadeBackdrop {
+  from { background: rgba(0,0,0,0.4); }
+  to   { background: rgba(0,0,0,0.75); }
+}
+.modal .box {
+  background: rgba(20,20,22,0.32) !important;
+  border: 1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(18px);
+  border-radius: 20px !important;
+  box-shadow:
+    0 20px 50px rgba(0,0,0,0.65),
+    0 0 40px rgba(255,210,125,0.22);
+  transform: translateY(20px) scale(0.92);
+  opacity: 0;
+  animation: modalReveal .45s cubic-bezier(.22,.9,.3,1) forwards;
+}
+@keyframes modalReveal {
+  0% { opacity:0; transform: translateY(30px) scale(0.88); }
+  100% { opacity:1; transform: translateY(0) scale(1); }
+}
+.detail-img {
+  border-radius: 14px !important;
+  border: 1px solid rgba(255,255,255,0.25);
+  box-shadow:
+    0 12px 35px rgba(0,0,0,0.55),
+    0 0 25px rgba(255,210,125,0.22);
+  transition: .35s ease;
+  filter: brightness(0.93);
+}
+.detail-img:hover {
+  transform: scale(1.03);
+  filter: brightness(1.05);
+}
+
 </style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBq7Y_3XVBcSquNteOPPvKMSi5xkX6k-Aw",
+  authDomain: "my-products-a89bd.firebaseapp.com",
+  projectId: "my-products-a89bd",
+  storageBucket: "my-products-a89bd.firebasestorage.app",
+  messagingSenderId: "256656103830",
+  appId: "1:256656103830:web:c1a4fd37ff44b4a5aca5b7",
+  measurementId: "G-WN9EGQ596V"
+};
+// Initialize Firebase (namespaced global firebase provided by the loaded scripts)
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+
 </head>
 <body>
 <header>
-  <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:20px">
-    <div style="display:flex; gap:12px; align-items:center; cursor:pointer" onclick="navigate('home')">
-      <img src="https://i.ibb.co/67bXFH76/LOGO.png" alt="logo" style="height:120px; width:auto; object-fit:contain">
-      <div>
-        <div style="font-size:20px; font-weight:800; color:#d4edec;">Capital Hardwares &amp; Machineries</div>
-        <div class="meta">Quality Products • Display-only catalog</div>
-      </div>
+  <div class="container" style="
+     display:flex;
+     align-items:center;
+     justify-content:space-between;
+     gap:20px;
+">
+
+    <!-- Logo + Company Name in Row -->
+    <div style="display:flex; align-items:center; gap:12px; cursor:pointer;"
+         onclick="navigate('home')">
+
+        <img src="https://i.ibb.co/67bXFH76/LOGO.png"
+             alt="Company Logo"
+             style="height:200px; width:auto; object-fit:contain;">
+
+        <div style="display:flex; flex-direction:column; line-height:1.1;">
+            <div style="text-align:center; line-height:1.1;">
+
+    <div style="
+        font-size:34px;
+        font-weight:900;
+        color:#d4edec;
+        text-transform:uppercase;
+        letter-spacing:1px;
+    ">
+        Capital Hardwares
     </div>
-    <nav>
+
+    <div style="
+        font-size:26px;
+        font-weight:800;
+        margin:4px 0;
+        color:#d4edec;
+    ">
+        &
+    </div>
+
+    <div style="
+        font-size:32px;
+        font-weight:900;
+        color:#d4edec;
+        text-transform:uppercase;
+        letter-spacing:1px;
+    ">
+        Machineries
+    </div>
+
+</div>
+
+            <p><div style="font-size:22px;color: rgb(245 236 216);">
+                Quality Products • Display-only catalog
+            </div></p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav style="display:flex; gap:12px;">
       <a href="#home" data-route="home" class="active">Home</a>
       <a href="#products" data-route="products">Products</a>
       <a href="#contact" data-route="contact">Contact</a>
+      <a href="#admin" data-route="admin">Admin</a>
     </nav>
-  </div>
+
+</div>
+
 </header>
 
 <main class="container" id="app">
-  <section id="view-home" class="card">
-    <h1>Welcome to Capital Hardwares &amp; Machineries</h1>
-    <p class="meta">Browse our product catalog. For inquiries, use the contact form.</p>
+  <!-- HOME -->
+  <section id="view-home" class="card glass">
+    <div class="hero">
+      <div>
+        <h1 class="h-premium" class="h-premium" class="premium-head"><strong>CAPITAL HARDWARES &amp; MACHINERIES - Providing best quality products</strong></h1>
+        <p class="meta" style="margin-top:30px"><font-size:15px;>Founded in 1991, we showcase a wide range of products — from Hardware to Machineries. This site is a display-only catalog so customers can browse before contacting us for inquiries.</font-size:15px;></p>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px">
+          <div class="card hover-float glow-hover light-glass" style="padding:14px;text-align:center"><strong>5000+</strong><div class="meta">Products & Spare Parts Stock In Hand</div></div>
+          <div class="card hover-float glow-hover light-glass" style="padding:14px;text-align:center"><strong>PAN INDIA</strong><div class="meta">Customers &amp; viewers</div></div>
+          <div class="card hover-float glow-hover light-glass" style="padding:14px;text-align:center"><strong>Display-only</strong><div class="meta">No checkout</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card glass hover-float glow-hover light-glass">
+          <h3 class="premium-head">About Us</h3>
+          <p class="meta">We focus on high-quality products and transparent product information. Also we are providing spare parts for the Products we sell. Our catalog provides photos, specs and a contact path for each product.</p>
+          <hr style="margin:12px 0;border:none;border-top: 3px solid rgb(185 139 39);">
+          <p><strong class="premium-sub">SHOP</strong><br>G-57 Chanmari, Aizawl<br>Mizoram, India</p>	
+          <p><strong>Email</strong><br><a href="mailto:cap.machineries@gmail.com">cap.machineries@gmail.com</a></p>
+          <p><strong>Contact</strong><br>+919366513280</p>
+          <hr style="margin:12px 0;border:none;border-top: 3px solid rgb(185 139 39);">
+          <p><strong class="premium-sub">GODOWN</strong><br>Central Jail Vneg,Tuivamit<br>Mizoram, India</p>	
+          <p><strong>Email</strong><br><a href="mailto:mawmrangcomplex@gmail.com">mawmrangcomplex@gmail.com</a></p>
+          <p><strong>Contact</strong><br>+918132025646</p>
+        </div>
+      </div>
+    </div>
   </section>
 
+  <!-- PRODUCTS -->
   <section id="view-products" class="card" style="display:none">
     <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap">
       <div style="display:flex;gap:12px;align-items:center;flex:1">
-        <input id="searchInput" class="search" placeholder="Search products by name or tag..." oninput="applyFilters()" style="padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04)">
-        <select id="categorySelect" style="width:200px" onchange="applyFilters()"><option value="">All categories</option></select>
+        <input id="searchInput" class="search" placeholder="Search products by name or tag..." oninput="applyFilters()">
+        <select id="categorySelect" style="width:200px" onchange="applyFilters()">
+          <option value="">All categories</option>
+        </select>
         <select id="sortSelect" style="width:160px" onchange="applyFilters()">
           <option value="relevance">Sort: Relevance</option>
           <option value="name">Sort: Name (A–Z)</option>
@@ -69,14 +329,15 @@
     </div>
 
     <div id="productsGrid" class="products-grid" style="margin-top:16px">
-      <div class="empty" id="emptyNotice">No products available.</div>
+      <div class="empty" id="emptyNotice">No products have been added yet. Open <strong>Admin</strong> and add products to the catalog.</div>
     </div>
 
     <div class="pagination" id="pagination" style="margin-top:18px"></div>
   </section>
 
+  <!-- CONTACT -->
   <section id="view-contact" class="card" style="display:none">
-    <h2>Contact &amp; Inquiry</h2>
+    <h2 class="premium-head">Contact &amp; Inquiry</h2>
     <p class="meta">To inquire about a product, open the product detail and include the Product ID in your message.</p>
     <form onsubmit="submitContact(event)" style="display:grid;gap:10px;max-width:700px">
       <input id="name" placeholder="Your name" required>
@@ -90,6 +351,127 @@
       </div>
     </form>
   </section>
+
+  <!-- ADMIN -->
+  <section id="view-admin" class="card" style="display:none">
+    <div id="pinScreen">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+    <div style="margin-top:12px;display:flex;gap:8px;">
+      <button class="btn" style="display:flex;align-items:center;gap:6px;" onclick="showAdminTab('inquiries')">📨 Inquiries</button>
+      <button class="btn secondary" style="display:flex;align-items:center;gap:6px;" onclick="showAdminTab('products')">🛠️ Products</button>
+    </div>
+
+        <div>
+          <div class="meta">Admin — enter PIN to unlock</div>
+          <div class="meta" style="margin-top:6px;color:var(--muted)">PIN required to access product management.</div>
+        </div>
+        <div>
+          <button class="btn" onclick="navigate('products')">Back to Catalog</button>
+        </div>
+      </div>
+
+      <div class="pin-wrap" id="pinWrapper" style="margin-top:18px">
+        <div id="dots" class="pin-dots" aria-hidden="true">
+          <div class="dot" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div>
+          <div class="dot" id="d3"></div><div class="dot" id="d4"></div><div class="dot" id="d5"></div>
+        </div>
+
+        <div id="pad" class="pad" aria-label="PIN pad">
+          <button data-n="1">1</button><button data-n="2">2</button><button data-n="3">3</button>
+          <button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button>
+          <button data-n="7">7</button><button data-n="8">8</button><button data-n="9">9</button>
+          <button id="clear">Clear</button><button data-n="0" class="zero">0</button><button id="back">⌫</button>
+        </div>
+
+        <div class="pin-actions">
+          <button id="unlockBtn" class="btn">Unlock</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="adminPanel" class="hidden" style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+    <div id="adminTabToolbar" style="margin-top:10px; display:flex; gap:8px; align-items:center;">
+      <button id="tabInquiriesBtn" class="btn" style="display:flex;align-items:center;gap:8px;" onclick="showAdminTab('inquiries')">📨 <span style="margin-left:4px">Inquiries</span></button>
+      <button id="tabProductsBtn" class="btn secondary" style="display:flex;align-items:center;gap:8px;" onclick="showAdminTab('products')">🛠️ <span style="margin-left:4px">Products</span></button>
+    </div>
+
+        <strong class="premium-head">Admin Panel</strong>
+        <div>
+          <button class="btn" id="lockBtn" style="background:#222;color:var(--text)">Lock</button>
+        </div>
+      </div>
+
+      <p class="meta" style="margin-top:8px">Manage products stored locally. Changes write to <code>localStorage</code> key <strong>cap_products</strong>.</p>
+
+
+  <div id="admin-inquiries">
+<!-- Customer Inquiries Panel (added) -->
+  <div class="card" style="padding:12px; margin-bottom:12px;">
+    <h3>Customer Inquiries</h3>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <input id="inquirySearch" placeholder="Search inquiries by name, email, subject or message..." style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04)" oninput="searchInquiries()">
+      <button class="btn secondary" onclick="clearAllInquiries()" title="Delete all inquiries">Delete All</button>
+    </div>
+    <div id="inquiryList" style="max-height:320px; overflow:auto; border-top:1px solid rgba(255,255,255,0.03); padding-top:8px;"></div>
+  </div>
+
+</div>
+
+<div id="admin-products" class="admin-grid" style="margin-top:12px">
+  <div class="card" style="padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+    <div>
+      <label class="meta">🆔 Product ID (optional)</label>
+      <input id="fieldId" placeholder="e.g. 101">
+    </div>
+    <div>
+      <label class="meta">🏷️ Title</label>
+      <input id="fieldTitle">
+    </div>
+
+    <div>
+      <label class="meta">💰 Price</label>
+      <input id="fieldPrice">
+    </div>
+    <div>
+      <label class="meta">📂 Category</label>
+      <input id="fieldCategory">
+    </div>
+
+    <div style="grid-column:1 / span 2;">
+      <label class="meta">🖼️ Image URL</label>
+      <input id="fieldImage" placeholder="https://...">
+    </div>
+
+    <div style="grid-column:1 / span 2;">
+      <label class="meta">🏷️ Tags (comma separated)</label>
+      <input id="fieldTags">
+    </div>
+
+    <div style="grid-column:1 / span 2;">
+      <label class="meta">📝 Description</label>
+      <textarea id="fieldDesc" rows="6"></textarea>
+    </div>
+	<input type="file" id="importFile" accept="application/json" style="display:none">
+
+
+    <div style="grid-column:1 / span 2; display:flex; gap:8px; margin-top:8px;">
+      <button id="btnSave" class="btn">Save</button>
+      <button id="btnLoad" class="btn secondary">Load</button>
+      <button id="btnDelete" class="btn secondary">Delete</button>
+      <button id="btnExport" class="btn secondary">Export Products</button>
+    </div>
+  </div>
+
+  <div>
+    <div class="card" style="padding:12px">
+      <h3 class="premium-sub">Products (local)</h3>
+      <div id="productList" style="max-height:360px;overflow:auto; font-family:monospace; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:8px;"></div>
+    </div>
+  </div>
+</div>
+
+  </section>
 </main>
 
 <footer class="container" style="margin-top:18px">
@@ -101,10 +483,10 @@
 
 <!-- modal -->
 <div id="modal" class="modal" onclick="if(event.target.id==='modal') closeModal()">
-  <div class="card" role="dialog" aria-modal="true" style="max-width:900px;width:100%;display:grid;grid-template-columns:1fr 360px;gap:18px;padding:18px;border-radius:12px">
+  <div class="box card" role="dialog" aria-modal="true">
     <div>
       <img id="detailImg" class="detail-img" src="" alt="Product image">
-      <h2 id="detailTitle"></h2>
+      <h2 id="detailTitle" class="premium-sub"></h2>
       <p id="detailDesc" class="meta"></p>
     </div>
     <div>
@@ -124,18 +506,8 @@
 </div>
 
 <script>
-/* --- Config --- */
-const STORAGE_KEY = 'cap_products';
-const JSONBIN_BIN_ID = "69390c1bd0ea881f401ec9e3";
-const JSONBIN_READ_KEY = "$2a$10$hE6kjo8yiOLXrXpyJTnbge7Smbigtc9/viX6ledsLb3vRaiD1WPt.";
-
-let PRODUCTS_MAP = {};
-let filteredList = [];
-let currentPage = 1;
-const perPage = 24;
-
-/* --- Routing --- */
-const routes = ['home','products','contact'];
+/* Routing */
+const routes=['home','products','contact','admin'];
 function showView(view){
   routes.forEach(r=>{
     const el=document.getElementById('view-'+r);
@@ -148,33 +520,61 @@ function handleRoute(){
   if(page.startsWith('product-')){ showView('products'); setTimeout(()=> showProductFromHash(page),150); return; }
   if(!routes.includes(page)) page='home';
   showView(page);
-  if(page==='products') setTimeout(()=> renderProductsPage(),50);
+  if(page==='products') setTimeout(()=> loadAndRenderProducts(),50);
+  if(page==='admin') initAdminView();
 }
 window.addEventListener('hashchange', handleRoute);
+window.addEventListener('load', async ()=>{ await loadProductsFromCloud(); handleRoute(); });
 
-/* --- Cloud loader (with caching) --- */
-async function loadProductsFromCloud() {
-    try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-            headers: { "X-Access-Key": JSONBIN_READ_KEY }
-        });
-        if (!res.ok) throw new Error('Cloud fetch failed: '+res.status);
-        const json = await res.json();
-        PRODUCTS_MAP = json.record || {};
-        // cache locally for faster fallback
-        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(PRODUCTS_MAP)); }catch(e){}
-        return true;
-    } catch (e) {
-        console.warn('Cloud load failed, falling back to localStorage.', e);
-        try{
-            PRODUCTS_MAP = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        }catch(err){ PRODUCTS_MAP = {}; }
-        return false;
-    }
+/* Storage key */
+const STORAGE_KEY = 'cap_products';
+let PRODUCTS_MAP = {};
+let filteredList = [];
+let currentPage = 1;
+const perPage = 24;
+
+/* Load products from localStorage (kept for fallback) */
+function loadProductsFromLocal(){
+  try{ PRODUCTS_MAP = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {}; }catch(e){ PRODUCTS_MAP = {}; }
 }
 
-/* --- Helpers & rendering --- */
+/* Load products from Firestore */
+async function loadProductsFromCloud(){
+  try{
+    PRODUCTS_MAP = {};
+    const snapshot = await db.collection("products").get();
+    snapshot.forEach(doc => {
+      PRODUCTS_MAP[doc.id] = doc.data();
+      // ensure id present on object
+      if(!PRODUCTS_MAP[doc.id].id) PRODUCTS_MAP[doc.id].id = doc.id;
+    });
+  }catch(e){
+    // on any error, fallback to local
+    console.error("Firestore load failed, using localStorage fallback", e);
+    loadProductsFromLocal();
+  }
+}
+
 function getProductsArray(){ return Object.values(PRODUCTS_MAP).sort((a,b)=>(a.created||0)-(b.created||0)); }
+
+async function loadAndRenderProducts(){
+  await loadProductsFromCloud();
+  const arr = getProductsArray();
+  filteredList = arr.slice();
+  const grid = document.getElementById('productsGrid');
+  const empty = document.getElementById('emptyNotice');
+  if(arr.length===0){
+    grid.innerHTML=''; grid.appendChild(empty);
+    document.getElementById('resultsCount').textContent='0 products';
+    document.getElementById('pagination').innerHTML='';
+    populateCategorySelect([]);
+    return;
+  }
+  // render categories and list
+  empty.remove();
+  populateCategorySelect(arr.map(p=>p.category).filter(Boolean));
+  applyFilters();
+}
 
 function populateCategorySelect(categories){
   const sel = document.getElementById('categorySelect');
@@ -183,11 +583,32 @@ function populateCategorySelect(categories){
 }
 
 function renderProductsPage(){
-  const arr = getProductsArray();
-  filteredList = arr.slice();
-  applyFilters(); // apply filters will call renderProductsPageInternal
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML='';
+  const start=(currentPage-1)*perPage;
+  const pageItems = filteredList.slice(start,start+perPage);
+  pageItems.forEach(p=>{
+    const el=document.createElement('div'); el.className='product card';
+    el.innerHTML = `<img loading="lazy" src="${p.image||('https://picsum.photos/seed/'+p.id+'/800/600')}" alt="${p.title||''}"><h3>${p.title||'(no title)'}</h3><div class="meta">${p.category||''} • ${p.price||''}</div>`;
+    el.onclick = ()=> openProduct(p.id);
+    grid.appendChild(el);
+  });
+  document.getElementById('resultsCount').textContent = `${filteredList.length.toLocaleString()} products`;
+  renderPagination();
+}
+function renderPagination(){
+  const container = document.getElementById('pagination');
+  const total = Math.max(1, Math.ceil(filteredList.length / perPage));
+  container.innerHTML='';
+  const prev = document.createElement('button'); prev.className='btn secondary'; prev.textContent='Prev'; prev.disabled = currentPage===1; prev.onclick = ()=>{ currentPage--; renderProductsPage(); };
+  const next = document.createElement('button'); next.className='btn secondary'; next.textContent='Next'; next.disabled = currentPage===total; next.onclick = ()=>{ currentPage++; renderProductsPage(); };
+  container.appendChild(prev);
+  const startPage = Math.max(1, currentPage-2); const endPage = Math.min(total, currentPage+2);
+  for(let i=startPage;i<=endPage;i++){ const b=document.createElement('button'); b.className='btn secondary'; b.textContent=i; if(i===currentPage) b.style.fontWeight='700'; b.onclick = ()=>{ currentPage=i; renderProductsPage(); }; container.appendChild(b); }
+  container.appendChild(next);
 }
 
+/* Filters */
 function applyFilters(){
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
   const cat = document.getElementById('categorySelect').value;
@@ -201,47 +622,16 @@ function applyFilters(){
   if(sort==='name') filteredList.sort((a,b)=>(a.title||'').localeCompare(b.title||''));
   else if(sort==='newest') filteredList.sort((a,b)=>(b.created||0)-(a.created||0));
   currentPage = 1;
-  renderProductsPageInternal();
-}
-
-function renderProductsPageInternal(){
-  const grid = document.getElementById('productsGrid');
-  const empty = document.getElementById('emptyNotice');
-  const arr = filteredList;
-  if(arr.length===0){
-    grid.innerHTML=''; grid.appendChild(empty); document.getElementById('resultsCount').textContent='0 products'; document.getElementById('pagination').innerHTML=''; populateCategorySelect([]); return;
+  if(filteredList.length===0){
+    const grid=document.getElementById('productsGrid'); grid.innerHTML=''; const div=document.createElement('div'); div.className='empty'; div.textContent='No products match your search.'; grid.appendChild(div);
+    document.getElementById('pagination').innerHTML=''; document.getElementById('resultsCount').textContent='0 products'; return;
   }
-  // ensure empty notice removed
-  if(empty.parentElement) empty.parentElement.removeChild(empty);
-  // populate categories
-  populateCategorySelect(getProductsArray().map(p=>p.category).filter(Boolean));
-  grid.innerHTML='';
-  const start=(currentPage-1)*perPage;
-  const pageItems = arr.slice(start,start+perPage);
-  pageItems.forEach(p=>{
-    const el=document.createElement('div'); el.className='product card';
-    el.innerHTML = `<img loading="lazy" src="${p.image||('https://picsum.photos/seed/'+p.id+'/800/600')}" alt="${escapeHtml(p.title||'')}"><h3>${escapeHtml(p.title||'(no title)')}</h3><div class="meta">${escapeHtml(p.category||'')} • ${escapeHtml(p.price||'')}</div>`;
-    el.onclick = ()=> openProduct(p.id);
-    grid.appendChild(el);
-  });
-  document.getElementById('resultsCount').textContent = `${arr.length.toLocaleString()} products`;
-  renderPagination();
+  renderProductsPage();
 }
 
-function renderPagination(){
-  const container = document.getElementById('pagination');
-  const total = Math.max(1, Math.ceil(filteredList.length / perPage));
-  container.innerHTML='';
-  const prev = document.createElement('button'); prev.className='btn secondary'; prev.textContent='Prev'; prev.disabled = currentPage===1; prev.onclick = ()=>{ currentPage--; renderProductsPageInternal(); };
-  const next = document.createElement('button'); next.className='btn secondary'; next.textContent='Next'; next.disabled = currentPage===total; next.onclick = ()=>{ currentPage++; renderProductsPageInternal(); };
-  container.appendChild(prev);
-  const startPage = Math.max(1, currentPage-2); const endPage = Math.min(total, currentPage+2);
-  for(let i=startPage;i<=endPage;i++){ const b=document.createElement('button'); b.className='btn secondary'; b.textContent=i; if(i===currentPage) b.style.fontWeight='700'; b.onclick = ()=>{ currentPage=i; renderProductsPageInternal(); }; container.appendChild(b); }
-  container.appendChild(next);
-}
-
-/* --- Product modal --- */
-function openProduct(id){
+/* Product modal */
+async function openProduct(id){
+  await loadProductsFromCloud();
   const p = PRODUCTS_MAP[id];
   if(!p) return alert('Product not found.');
   const productImage = p.image || p.img || p.imgUrl || p.url || 'https://i.ibb.co/7jmqfBB/no-image.jpg';
@@ -258,7 +648,7 @@ function openProduct(id){
 function closeModal(){ document.getElementById('modal').classList.remove('open'); if(location.hash.startsWith('#product-')) location.hash='products'; }
 function showProductFromHash(hash){ const id = hash.split('-')[1]; if(id) openProduct(id); }
 
-/* --- Contact --- */
+/* Contact */
 function contactAbout(){ const id=document.getElementById('detailId').textContent; location.hash='contact'; setTimeout(()=>{ document.getElementById('subject').value=`Product inquiry: ID #${id} — ${document.getElementById('detailTitle').textContent}`; document.getElementById('message').focus(); },200); }
 function submitContact(e){
   e.preventDefault();
@@ -270,27 +660,355 @@ function submitContact(e){
     subject: document.getElementById('subject').value.trim(),
     message: document.getElementById('message').value.trim(),
     date: new Date().toLocaleString()
-  };
+};
+
+  // save to localStorage
   let inquiries = JSON.parse(localStorage.getItem('cap_inquiries') || '[]');
   inquiries.push(payload);
   localStorage.setItem('cap_inquiries', JSON.stringify(inquiries));
+
+  // open WhatsApp (Godown number as requested)
+  const waNumber = '918132025646';
+  const waMsg = encodeURIComponent(
+    `New Inquiry:\nName: ${payload.name}\nEmail: ${payload.email}\nSubject: ${payload.subject}\nMessage: ${payload.message}`
+  );
+  // open in new tab
+  // WhatsApp auto-open removed
+
   alert('Inquiry submitted successfully!');
   resetContact();
+  // If admin panel is open, refresh list
+  try{ if(document.getElementById('adminPanel') && !document.getElementById('adminPanel').classList.contains('hidden')) loadInquiryList(); }catch(e){}
 }
-function resetContact(){ document.getElementById('name').value=''; document.getElementById('email').value=''; document.getElementById('whatsapp').value=''; document.getElementById('subject').value=''; document.getElementById('message').value=''; }
+function resetContact(){ document.getElementById('name').value=''; document.getElementById('email').value='';
+    document.getElementById('whatsapp').value=''; document.getElementById('subject').value=''; document.getElementById('message').value=''; }
 
-/* --- Utilities --- */
+/* Admin logic (PIN + panel) */
+const ADMIN_PIN = "123456"; // your PIN
+let pinValue = "";
+const dots = Array.from({length:6}, (_,i)=>document.getElementById('d'+i));
+const pad = document.getElementById('pad');
+const unlockBtn = document.getElementById('unlockBtn');
+const clearBtn = document.getElementById('clear');
+const backBtn = document.getElementById('back');
+const pinWrapper = document.getElementById('pinWrapper');
+const pinScreen = document.getElementById('pinScreen');
+const adminPanel = document.getElementById('adminPanel');
+
+function updateDots(){ dots.forEach((d,i)=> d.classList.toggle('filled', i < pinValue.length)); }
+
+document.querySelectorAll('#pad button[data-n]').forEach(b=>{
+  b.addEventListener('click', ()=>{ if(pinValue.length>=6) return; pinValue += b.dataset.n; updateDots(); });
+});
+clearBtn.addEventListener('click', ()=>{ pinValue=''; updateDots(); });
+backBtn.addEventListener('click', ()=>{ pinValue=pinValue.slice(0,-1); updateDots(); });
+
+async function unlockAdmin(){
+  if(pinValue === ADMIN_PIN){
+    sessionStorage.setItem('admin_unlocked','1');
+    showAdminPanel();
+  } else {
+    pinWrapper.classList.add('shake');
+    setTimeout(()=> pinWrapper.classList.remove('shake'),400);
+    pinValue=''; updateDots();
+  }
+}
+unlockBtn.addEventListener('click', unlockAdmin);
+
+function showAdminPanel(){
+  pinScreen.style.display='none';
+  adminPanel.classList.remove('hidden');
+  loadProductListToAdmin();
+  loadInquiryList();
+  try{ showAdminTab('inquiries'); }catch(e){}
+}
+
+function lockAdmin(){ sessionStorage.removeItem('admin_unlocked'); pinValue=''; updateDots(); adminPanel.classList.add('hidden'); pinScreen.style.display='block'; }
+document.getElementById('lockBtn').addEventListener('click', lockAdmin);
+
+/* Admin save/load/delete */
+async function loadProductListToAdmin(){
+  loadProductsFromLocal(); // keep local fallback initially
+  const list = document.getElementById('productList'); list.innerHTML='';
+  try{
+    const snapshot = await db.collection("products").orderBy("created","desc").get();
+    snapshot.forEach(doc=>{
+      const p = doc.data();
+      const div=document.createElement('div'); div.style.padding='8px'; div.style.borderBottom='1px solid rgba(255,255,255,0.03)';
+      div.innerHTML=`<strong>${p.title||'(no title)'}</strong><small class="meta">#${p.id}</small><div class="meta" style="margin-top:6px">${p.category||''} • ${p.price||''}</div>`;
+      div.onclick = ()=>{ fieldId.value=p.id; fieldTitle.value=p.title; fieldPrice.value=p.price; fieldCategory.value=p.category; fieldImage.value=p.image; fieldTags.value=(p.tags||[]).join(', '); fieldDesc.value=p.description; window.scrollTo({top:document.getElementById('view-admin').offsetTop, behavior:'smooth'}); };
+      list.appendChild(div);
+    });
+    return;
+  }catch(e){
+    // fallback to local list
+  }
+  const arr = getProductsArray().reverse();
+  arr.forEach(p=>{
+    const div=document.createElement('div'); div.style.padding='8px'; div.style.borderBottom='1px solid rgba(255,255,255,0.03)';
+    div.innerHTML=`<strong>${p.title||'(no title)'}</strong><small class="meta">#${p.id}</small><div class="meta" style="margin-top:6px">${p.category||''} • ${p.price||''}</div>`;
+    div.onclick = ()=>{ fieldId.value=p.id; fieldTitle.value=p.title; fieldPrice.value=p.price; fieldCategory.value=p.category; fieldImage.value=p.image; fieldTags.value=(p.tags||[]).join(', '); fieldDesc.value=p.description; window.scrollTo({top:document.getElementById('view-admin').offsetTop, behavior:'smooth'}); };
+    list.appendChild(div);
+  });
+}
+
+document.getElementById('btnSave').addEventListener('click', async ()=>{
+  const id = fieldId.value.trim() || Date.now().toString();
+  const prod = {
+    id: id,
+    title: fieldTitle.value.trim(),
+    price: fieldPrice.value.trim(),
+    category: fieldCategory.value.trim(),
+    image: fieldImage.value.trim() || ('https://picsum.photos/seed/'+id+'/800/600'),
+    tags: fieldTags.value.split(',').map(s=>s.trim()).filter(Boolean),
+    description: fieldDesc.value.trim(),
+    created: Date.now()
+  };
+  try{
+    await db.collection("products").doc(id).set(prod);
+    alert('Saved to cloud!');
+    // notify other parts (and other tabs)
+    try{ const bc = new BroadcastChannel('cap_channel'); bc.postMessage({type:'products-updated'}); bc.close(); }catch(e){ localStorage.setItem('cap_products_updated_at', Date.now()); }
+    loadProductListToAdmin();
+  }catch(err){
+    // if firestore fails, fallback to localStorage save
+    loadProductsFromLocal();
+    PRODUCTS_MAP[id]=prod;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(PRODUCTS_MAP));
+    alert('Saved locally (cloud failed).');
+    try{ const bc = new BroadcastChannel('cap_channel'); bc.postMessage({type:'products-updated'}); bc.close(); }catch(e){ localStorage.setItem('cap_products_updated_at', Date.now()); }
+    loadProductListToAdmin();
+  }
+});
+
+document.getElementById('btnLoad').addEventListener('click', loadProductListToAdmin);
+
+document.getElementById('btnDelete').addEventListener('click', async ()=>{
+  const id = fieldId.value.trim();
+  if(!id) return alert('Enter ID to delete');
+  try{
+    await db.collection("products").doc(id).delete();
+    alert('Deleted from cloud');
+    try{ const bc = new BroadcastChannel('cap_channel'); bc.postMessage({type:'products-updated'}); bc.close(); }catch(e){ localStorage.setItem('cap_products_updated_at', Date.now()); }
+    loadProductListToAdmin();
+    return;
+  }catch(e){}
+  // fallback delete locally
+  loadProductsFromLocal();
+  if(!PRODUCTS_MAP[id]) return alert('Not found');
+  delete PRODUCTS_MAP[id];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(PRODUCTS_MAP));
+  alert('Deleted locally');
+  loadProductListToAdmin();
+});
+
+/* BroadcastChannel to auto-refresh products when admin saves (same page) */
+try{
+  const bc = new BroadcastChannel('cap_channel');
+  bc.onmessage = (ev)=>{ if(ev.data && ev.data.type==='products-updated') { loadAndRenderProducts(); loadProductListToAdmin(); } };
+}catch(e){
+  window.addEventListener('storage', (ev)=>{ if(ev.key==='cap_products_updated_at') { loadAndRenderProducts(); loadProductListToAdmin(); } });
+}
+
+/* Misc init */
+function navigate(view){ location.hash = view; }
+window.addEventListener('load', async ()=>{
+  await loadProductsFromCloud();
+  // if deep link to product
+  handleRoute();
+});
+
+/* Inquiries: load/search/delete */
+function loadInquiryList(){
+  const list = document.getElementById('inquiryList');
+  if(!list) return;
+  const inquiries = JSON.parse(localStorage.getItem('cap_inquiries') || '[]');
+  list.innerHTML = '';
+  if(inquiries.length === 0){
+    list.innerHTML = '<div class="meta">No inquiries yet.</div>';
+    return;
+  }
+  const q = document.getElementById('inquirySearch') ? document.getElementById('inquirySearch').value.trim().toLowerCase() : '';
+  const filtered = inquiries.filter(it => {
+    if(!q) return true;
+    return (it.name||'').toLowerCase().includes(q) || (it.email||'').toLowerCase().includes(q) || (it.subject||'').toLowerCase().includes(q) || (it.message||'').toLowerCase().includes(q);
+  });
+  filtered.slice().reverse().forEach(it => {
+    const row = document.createElement('div');
+    row.style.padding = '10px';
+    row.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
+    row.style.display = 'flex';
+    row.style.alignItems = 'flex-start';
+    row.style.justifyContent = 'space-between';
+    const left = document.createElement('div');
+    left.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><strong>${escapeHtml(it.name||'(no name)')}</strong> <span class="meta" style="margin-left:8px">(${it.date||''})</span></div>
+      <div class="meta">Email: ${escapeHtml(it.email||'')}</div>
+      <div class="meta">Subject: ${escapeHtml(it.subject||'')}</div>
+      <div style="margin-top:6px">${escapeHtml(it.message||'')}</div>`;
+    const right = document.createElement('div');
+    right.style.display = 'flex';
+    right.style.flexDirection = 'column';
+    right.style.gap = '6px';
+    // WhatsApp quick reply button
+    const waBtn = document.createElement('button');
+    waBtn.className = 'btn secondary';
+    waBtn.style.padding = '6px 8px';
+    waBtn.textContent = 'Reply to WhatsApp';
+    waBtn.onclick = ()=>{
+      if(!it.whatsapp){
+          alert("Customer did not provide WhatsApp number.");
+          return;
+      }
+      const num = it.whatsapp.startsWith("91") ? it.whatsapp : "91" + it.whatsapp;
+      const waMsg = encodeURIComponent(`Hello ${it.name},
+
+Regarding your inquiry: ${it.subject}
+
+`);
+      window.open(`https://wa.me/${num}?text=${waMsg}`, "_blank");
+    };
+    // Trash icon delete button (Option 2)
+    const delBtn = document.createElement('button');
+    delBtn.title = 'Delete inquiry';
+    delBtn.innerHTML = '🗑️';
+    delBtn.style.border = 'none';
+    delBtn.style.background = 'transparent';
+    delBtn.style.cursor = 'pointer';
+    delBtn.style.fontSize = '18px';
+    delBtn.onclick = ()=>{ if(confirm('Delete this inquiry?')) deleteInquiry(it.id); };
+    right.appendChild(waBtn);
+
+    // Gmail reply button
+    const mailBtn = document.createElement('button');
+    mailBtn.className = 'btn secondary';
+    mailBtn.style.padding = '6px 8px';
+    mailBtn.textContent = 'Reply via Email';
+    mailBtn.onclick = ()=>{
+        const subject = "Reply: " + (it.subject || "");
+        const body =
+            "Hello " + (it.name || "") + ",%0D%0A%0D%0A" +
+            "Regarding your inquiry:%0D%0A" +
+            (it.message || "") + "%0D%0A%0D%0A";
+
+        const gmailUrl =
+  "https://mail.google.com/mail/?view=cm&fs=1" +
+  "&to=" + encodeURIComponent(it.email) +
+  "&su=" + encodeURIComponent(subject) +
+  "&body=" + encodeURIComponent(
+        "Hello " + (it.name || "") + ",\n\n" +
+        "Regarding your inquiry:\n" +
+        (it.message || "") + "\n\n"
+    );
+
+window.open(gmailUrl, "_blank");
+
+    };
+    right.appendChild(mailBtn);
+    right.appendChild(delBtn);
+    row.appendChild(left);
+    row.appendChild(right);
+    list.appendChild(row);
+  });
+}
+
+function deleteInquiry(id){
+  let inquiries = JSON.parse(localStorage.getItem('cap_inquiries') || '[]');
+  inquiries = inquiries.filter(it => it.id !== id);
+  localStorage.setItem('cap_inquiries', JSON.stringify(inquiries));
+  loadInquiryList();
+}
+
+function searchInquiries(){
+  loadInquiryList();
+}
+
+function clearAllInquiries(){
+  if(!confirm('Delete ALL inquiries? This cannot be undone.')) return;
+  localStorage.removeItem('cap_inquiries');
+  loadInquiryList();
+}
+
+// small helper to escape HTML when injecting
 function escapeHtml(unsafe) {
     if(!unsafe && unsafe !== 0) return '';
-    return String(unsafe).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    return String(unsafe)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
-function resetFilters(){ document.getElementById('searchInput').value=''; document.getElementById('categorySelect').value=''; document.getElementById('sortSelect').value='relevance'; applyFilters(); }
 
-/* --- Init on load --- */
-window.addEventListener('load', async () => {
-    await loadProductsFromCloud();
-    handleRoute();
-});
+function showAdminTab(tab){
+  try{
+    document.getElementById('admin-inquiries').style.display = (tab==='inquiries'?'block':'none');
+    document.getElementById('admin-products').style.display = (tab==='products'?'block':'none');
+    // toggle active styles
+    var inBtn = document.getElementById('tabInquiriesBtn');
+    var prBtn = document.getElementById('tabProductsBtn');
+    if(inBtn && prBtn){
+      if(tab==='inquiries'){
+        inBtn.classList.remove('btn','secondary'); inBtn.classList.add('btn');
+        prBtn.classList.remove('btn'); prBtn.classList.add('btn','secondary');
+      } else {
+        prBtn.classList.remove('btn','secondary'); prBtn.classList.add('btn');
+        inBtn.classList.remove('btn'); inBtn.classList.add('btn','secondary');
+      }
+    }
+  }catch(e){}
+}
 </script>
+
+<div id="toast" style="position:fixed; bottom:20px; right:20px; background:#4CAF50; color:#fff; padding:12px 18px; border-radius:8px; display:none; z-index:9999;">
+  ✔️ Saved Successfully
+</div>
+<script>
+function showToast(){
+  var t=document.getElementById('toast');
+  t.style.display='block';
+  setTimeout(()=>{t.style.display='none';},2000);
+}
+document.getElementById('btnSave').addEventListener('click', ()=>{ setTimeout(showToast,300); });
+
+// === EXPORT PRODUCTS BACKUP FILE ===
+document.getElementById('btnExport').addEventListener('click', () => {
+    const data = localStorage.getItem('cap_products') || "{}";
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "products-backup.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    alert("Backup exported successfully!");
+});
+// === IMPORT PRODUCTS BACKUP FILE ===
+document.getElementById('btnLoad').addEventListener('click', ()=>{
+    document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(){
+        try{
+            localStorage.setItem("cap_products", reader.result);
+            alert("Product data imported successfully!");
+            loadProductListToAdmin();
+        }catch(err){
+            alert("Invalid JSON file — import failed.");
+        }
+    };
+    reader.readAsText(file);
+});
+
+</script>
+
 </body>
 </html>
