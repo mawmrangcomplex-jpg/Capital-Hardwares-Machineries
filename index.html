@@ -173,6 +173,59 @@
   filter: brightness(1.05);
 }
 
+
+/* MOBILE FIXES */
+@media(max-width:768px){
+ header img{height:80px!important;}
+ nav{flex-wrap:wrap;justify-content:center;}
+ nav a{padding:6px 8px;font-size:14px;}
+ .hero{grid-template-columns:1fr!important;gap:12px;}
+ .products-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))!important;}
+ .modal .box{grid-template-columns:1fr!important;max-height:90vh;overflow-y:auto;}
+}
+
+
+/* ===== MOBILE HAMBURGER MENU (Safe Addition) ===== */
+@media (max-width: 768px) {
+
+  nav { display: none !important; }
+
+  .mobile-menu-btn {
+    position: absolute;
+    top: 22px;
+    left: 22px;
+    font-size: 32px;
+    cursor: pointer;
+    color: black;
+    z-index: 9999;
+  }
+
+  .mobile-menu {
+    position: absolute;
+    top: 90px;
+    left: 20px;
+    background: #1a1a1a;
+    padding: 14px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 170px;
+    border: 1px solid rgba(255,255,255,0.1);
+    z-index: 9999;
+  }
+
+  .mobile-menu a {
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.06);
+  }
+}
+
+.hidden { display: none !important; }
+
 </style>
 </head>
 <body>
@@ -229,6 +282,16 @@
 </nav>
 </div>
 </header>
+<!-- MOBILE MENU BUTTON (visible only on mobile) -->
+<div class="mobile-menu-btn" onclick="toggleMobileMenu()">&#9776;</div>
+
+<!-- MOBILE DROPDOWN MENU -->
+<div id="mobileMenu" class="mobile-menu hidden">
+  <a href="#home" onclick="toggleMobileMenu()">Home</a>
+  <a href="#products" onclick="toggleMobileMenu()">Products</a>
+  <a href="#contact" onclick="toggleMobileMenu()">Contact</a>
+</div>
+
 <main class="container" id="app">
 <!-- HOME -->
 <section class="card glass" id="view-home">
@@ -365,7 +428,7 @@
 </script>
 <script>
 /* Routing */
-const routes=['home','products','contact','admin'];
+const routes=['home','products','contact'];
 function showView(view){
   routes.forEach(r=>{
     const el=document.getElementById('view-'+r);
@@ -536,7 +599,7 @@ function resetContact(){ document.getElementById('name').value=''; document.getE
     document.getElementById('whatsapp').value=''; document.getElementById('subject').value=''; document.getElementById('message').value=''; }
 
 /* Admin logic (PIN + panel) */
-const ADMIN_PIN = "123456"; // your PIN
+const ADMIN_PIN = ""; // your PIN
 let pinValue = "";
 const dots = Array.from({length:6}, (_,i)=>document.getElementById('d'+i));
 const pad = document.getElementById('pad');
@@ -882,5 +945,13 @@ document.getElementById('importFile').addEventListener('change', function(e){
 });
 
 </script>
+
+<script>
+function toggleMobileMenu() {
+  const m = document.getElementById('mobileMenu');
+  m.classList.toggle('hidden');
+}
+</script>
+
 </body>
 </html>
