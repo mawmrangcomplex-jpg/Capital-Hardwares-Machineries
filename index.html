@@ -503,7 +503,8 @@ function closeModal(){ document.getElementById('modal').classList.remove('open')
 function showProductFromHash(hash){ const id = hash.split('-')[1]; if(id) openProduct(id); }
 
 /* Contact */
-function contactAbout(){ const id=document.getElementById('detailId').textContent; location.hash='contact'; setTimeout(()=>{ document.getElementById('subject').value=`Product inquiry: ID #${id} — ${document.getElementById('detailTitle').textContent}`; document.getElementById('message').focus(); },200); }
+function contactAbout(){
+  closeModal(); const id=document.getElementById('detailId').textContent; location.hash='contact'; setTimeout(()=>{ document.getElementById('subject').value=`Product inquiry: ID #${id} — ${document.getElementById('detailTitle').textContent}`; document.getElementById('message').focus(); },200); }
 async function submitContact(e){
   e.preventDefault();
   const payload = {
