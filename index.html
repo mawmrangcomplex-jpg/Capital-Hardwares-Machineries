@@ -597,50 +597,6 @@ async function submitContact(e){
 }
 function resetContact(){ document.getElementById('name').value=''; document.getElementById('email').value='';
     document.getElementById('whatsapp').value=''; document.getElementById('subject').value=''; document.getElementById('message').value=''; }
-
-/* Admin logic (PIN + panel) */
-const ADMIN_PIN = ""; // your PIN
-let pinValue = "";
-const dots = Array.from({length:6}, (_,i)=>document.getElementById('d'+i));
-const pad = document.getElementById('pad');
-const unlockBtn = document.getElementById('unlockBtn');
-const clearBtn = document.getElementById('clear');
-const backBtn = document.getElementById('back');
-const pinWrapper = document.getElementById('pinWrapper');
-const pinScreen = document.getElementById('pinScreen');
-const adminPanel = document.getElementById('adminPanel');
-
-function updateDots(){ dots.forEach((d,i)=> d.classList.toggle('filled', i < pinValue.length)); }
-
-document.querySelectorAll('#pad button[data-n]').forEach(b=>{
-  b.addEventListener('click', ()=>{ if(pinValue.length>=6) return; pinValue += b.dataset.n; updateDots(); });
-});
-clearBtn.addEventListener('click', ()=>{ pinValue=''; updateDots(); });
-backBtn.addEventListener('click', ()=>{ pinValue=pinValue.slice(0,-1); updateDots(); });
-
-function unlockAdmin(){
-  if(pinValue === ADMIN_PIN){
-    sessionStorage.setItem('admin_unlocked','1');
-    showAdminPanel();
-  } else {
-    pinWrapper.classList.add('shake');
-    setTimeout(()=> pinWrapper.classList.remove('shake'),400);
-    pinValue=''; updateDots();
-  }
-}
-unlockBtn.addEventListener('click', unlockAdmin);
-
-function showAdminPanel(){
-  pinScreen.style.display='none';
-  adminPanel.classList.remove('hidden');
-  loadProductListToAdmin();
-  loadInquiryList();
-  try{ showAdminTab('inquiries'); }catch(e){}
-}
-
-function lockAdmin(){ sessionStorage.removeItem('admin_unlocked'); pinValue=''; updateDots(); adminPanel.classList.add('hidden'); pinScreen.style.display='block'; }
-document.getElementById('lockBtn').addEventListener('click', lockAdmin);
-
 async function loadProductListToAdmin(){
   await loadProductsFromLocal();
   const list = document.getElementById('productList'); list.innerHTML='';
