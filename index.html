@@ -226,6 +226,69 @@
 
 .hidden { display: none !important; }
 
+
+/* ===== MOBILE PRODUCT FILTER FIX ===== */
+@media (max-width: 768px) {
+
+  #view-products > div:first-child {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  #view-products input,
+  #view-products select {
+    width: 100% !important;
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  #view-products .btn {
+    width: 100%;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+  }
+
+  .product.card {
+    padding: 10px !important;
+  }
+
+  .product.card h3 {
+    font-size: 14px;
+    line-height: 1.2;
+    margin: 6px 0;
+  }
+
+  .product.card .meta {
+    font-size: 12px;
+  }
+
+  .product.card img {
+    height: 120px !important;
+  }
+
+  .modal .box {
+    padding: 14px !important;
+    gap: 12px;
+  }
+
+  .detail-img {
+    height: 220px !important;
+  }
+
+  .modal .btn {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  button, select, input {
+    min-height: 44px;
+  }
+}
+
 </style>
 </head>
 <body>
